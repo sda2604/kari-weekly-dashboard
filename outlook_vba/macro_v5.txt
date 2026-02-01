@@ -1,4 +1,4 @@
-'===============================================================================
+﻿'===============================================================================
 ' KARI OUTLOOK VBA MACRO - Autosave attachments from emails
 '===============================================================================
 ' Version: 5.0 (FIXED: Cyrillic LCase bug + Enhanced diagnostics)
@@ -19,7 +19,7 @@
 
 Option Explicit
 
-Private Const SAVE_PATH As String = "C:\Users\salni\Desktop\Данные для Claude\WORK\2025-01-22_Автоматизация_еженедельных_отчетов\input\"
+Private Const SAVE_PATH As String = "C:\Users\YOUR_USER\YOUR_PROJECT_FOLDER\input\"
 Private Const LOG_PATH As String = "C:\Users\salni\Desktop\Данные для Claude\WORK\2025-01-22_Автоматизация_еженедельных_отчетов\logs\"
 Private Const SHOW_DEBUG As Boolean = False
 Private Const ENABLE_LOGGING As Boolean = True
