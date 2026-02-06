@@ -1,0 +1,52 @@
+# Telegram Bot - Confidential
+telegram_bot/config.py
+telegram_token.txt
+bot_token.txt
+
+# Input data (confidential Excel reports)
+input/
+
+# Output (generated dashboards)
+output/
+
+# Logs
+logs/
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Excel temporary files
+~$*.xlsx
+~$*.xls
+
+# JSON data files (temporary)
+*_data.json
+temp_*.json
+*_raw_data.txt
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+nul
+
+# Backup files
+*.bak
+*.backup
+*_BACKUP.*

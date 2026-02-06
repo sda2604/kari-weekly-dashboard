@@ -1,0 +1,57 @@
+{
+  "regions": {
+    "all_regions": [],
+    "nnv_divisions": [],
+    "nnv_categories_top5": [
+      {
+        "category": "лето (закрытое)",
+        "growth": 499.0
+      },
+      {
+        "category": "лето (открытое)",
+        "growth": 450.6
+      },
+      {
+        "category": "всесезонный",
+        "growth": 447.9
+      },
+      {
+        "category": "всесезонный (тапочки)",
+        "growth": 435.8
+      },
+      {
+        "category": "всесезонный",
+        "growth": 414.3
+      }
+    ],
+    "nnv_categories_worst5": [
+      {
+        "category": "зима",
+        "growth": 0.0
+      },
+      {
+        "category": "зима",
+        "growth": 0.0
+      },
+      {
+        "category": "всесезонный",
+        "growth": 0.0
+      },
+      {
+        "category": "лето (открытое)",
+        "growth": 0.0
+      },
+      {
+        "category": "лето (открытое)",
+        "growth": 0.0
+      }
+    ]
+  },
+  "accessories": {
+    "nnv_top10": [],
+    "nnv_worst10": []
+  },
+  "turnover": {
+    "slow_groups": []
+  }
+}

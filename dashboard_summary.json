@@ -1,0 +1,229 @@
+{
+  "meta": {
+    "region": "ННВ",
+    "period": "12.01.2026 - 18.01.2026",
+    "generated_at": "22.01.2026",
+    "total_shops": 119,
+    "total_categories": 133
+  },
+  "structure": {
+    "subdivisions": [
+      {
+        "name": "Нижний Новгород 1",
+        "shops_count": 28
+      },
+      {
+        "name": "Казань 1",
+        "shops_count": 23
+      },
+      {
+        "name": "Владимир",
+        "shops_count": 18
+      },
+      {
+        "name": "Ярославское",
+        "shops_count": 15
+      },
+      {
+        "name": "Набережные Челны",
+        "shops_count": 14
+      },
+      {
+        "name": "Нижний Новгород Север",
+        "shops_count": 12
+      },
+      {
+        "name": "Ижевское",
+        "shops_count": 9
+      }
+    ],
+    "avg_shops_per_subdivision": 17.0
+  },
+  "key_metrics": {
+    "total_sales_coverage": "100%",
+    "top20_sales_share": "66.2%",
+    "categories_analyzed": 133
+  },
+  "top10_by_impact": [
+    {
+      "category": "Женская обувь → 257 Ботинки женские зимние",
+      "direction": "Женская обувь",
+      "ostatok_pairs": 237.9,
+      "sales_share_pct": 10.2,
+      "growth_pct": 59.4,
+      "impact_score": 0.0606,
+      "k_ratio": 23.32
+    },
+    {
+      "category": "Мужская обувь → 261 Ботинки мужские зимние",
+      "direction": "Мужская обувь",
+      "ostatok_pairs": 184.3,
+      "sales_share_pct": 8.59,
+      "growth_pct": 51.8,
+      "impact_score": 0.0445,
+      "k_ratio": 21.46
+    },
+    {
+      "category": "Мужская обувь → 797 Ботинки мужские зимние для активного отдыха",
+      "direction": "Мужская обувь",
+      "ostatok_pairs": 141.3,
+      "sales_share_pct": 5.75,
+      "growth_pct": 50.6,
+      "impact_score": 0.0291,
+      "k_ratio": 24.59
+    },
+    {
+      "category": "Женская обувь → 007 Полуботинки женские для активного отдыха",
+      "direction": "Женская обувь",
+      "ostatok_pairs": 1586.6,
+      "sales_share_pct": 3.92,
+      "growth_pct": 70.6,
+      "impact_score": 0.0276,
+      "k_ratio": 405.08
+    },
+    {
+      "category": "Женская обувь → 016 Дутые сапоги/валенки женские",
+      "direction": "Женская обувь",
+      "ostatok_pairs": 68.5,
+      "sales_share_pct": 4.88,
+      "growth_pct": 56.1,
+      "impact_score": 0.0273,
+      "k_ratio": 14.04
+    },
+    {
+      "category": "Женская обувь → 011 Тапочки женские",
+      "direction": "Женская обувь",
+      "ostatok_pairs": 435.8,
+      "sales_share_pct": 5.65,
+      "growth_pct": 43.2,
+      "impact_score": 0.0244,
+      "k_ratio": 77.06
+    },
+    {
+      "category": "Женская обувь → 216 Сапоги женские зимние",
+      "direction": "Женская обувь",
+      "ostatok_pairs": 96.5,
+      "sales_share_pct": 3.79,
+      "growth_pct": 59.4,
+      "impact_score": 0.0225,
+      "k_ratio": 25.45
+    },
+    {
+      "category": "Женская обувь → 253 Полусапоги женские зимние",
+      "direction": "Женская обувь",
+      "ostatok_pairs": 85.7,
+      "sales_share_pct": 3.47,
+      "growth_pct": 61.8,
+      "impact_score": 0.0214,
+      "k_ratio": 24.72
+    },
+    {
+      "category": "Мужская обувь → 029 Полуботинки мужские для активного отдыха",
+      "direction": "Мужская обувь",
+      "ostatok_pairs": 1291.7,
+      "sales_share_pct": 2.97,
+      "growth_pct": 66.6,
+      "impact_score": 0.0198,
+      "k_ratio": 434.63
+    },
+    {
+      "category": "Женская обувь → b05 Ботильоны женские зимние",
+      "direction": "Женская обувь",
+      "ostatok_pairs": 58.1,
+      "sales_share_pct": 2.93,
+      "growth_pct": 59.9,
+      "impact_score": 0.0176,
+      "k_ratio": 19.83
+    }
+  ],
+  "alerts": {
+    "overstocked": [
+      {
+        "category": "Женская обувь → 007 Полуботинки женские для активного отдыха",
+        "k_ratio": 405.1,
+        "ostatok_pairs": 1586.6,
+        "issue": "Критическое затоваривание - запас на 7.8 лет"
+      },
+      {
+        "category": "Мужская обувь → 029 Полуботинки мужские для активного отдыха",
+        "k_ratio": 434.6,
+        "ostatok_pairs": 1291.7,
+        "issue": "Критическое затоваривание - запас на 8.4 лет"
+      },
+      {
+        "category": "Женская обувь → 012 Кроссовки женские",
+        "k_ratio": 852.6,
+        "ostatok_pairs": 1006.1,
+        "issue": "Критическое затоваривание - запас на 16+ лет"
+      }
+    ],
+    "low_stock": [
+      {
+        "category": "Женская обувь → 016 Дутые сапоги/валенки женские",
+        "k_ratio": 14.0,
+        "growth_pct": 56.1,
+        "issue": "Риск дефицита при высоком спросе"
+      },
+      {
+        "category": "Женская обувь → b05 Ботильоны женские зимние",
+        "k_ratio": 19.8,
+        "growth_pct": 59.9,
+        "issue": "Низкий запас при росте спроса"
+      }
+    ]
+  },
+  "growth_leaders": [
+    {
+      "category": "Женская обувь → 252 Полусапоги женские демисезонные",
+      "growth_pct": 72.9,
+      "sales_share_pct": 0.7
+    },
+    {
+      "category": "Женская обувь → 012 Кроссовки женские",
+      "growth_pct": 72.3,
+      "sales_share_pct": 1.18
+    },
+    {
+      "category": "Женская обувь → 001 Полуботинки женские зимние",
+      "growth_pct": 72.1,
+      "sales_share_pct": 0.49
+    },
+    {
+      "category": "Женская обувь → 256 Ботинки женские демисезонные",
+      "growth_pct": 71.7,
+      "sales_share_pct": 2.28
+    },
+    {
+      "category": "Женская обувь → 021 Ботильоны женские",
+      "growth_pct": 71.6,
+      "sales_share_pct": 2.22
+    }
+  ],
+  "sales_leaders": [
+    {
+      "category": "Женская обувь → 257 Ботинки женские зимние",
+      "sales_share_pct": 10.2,
+      "growth_pct": 59.4
+    },
+    {
+      "category": "Мужская обувь → 261 Ботинки мужские зимние",
+      "sales_share_pct": 8.59,
+      "growth_pct": 51.8
+    },
+    {
+      "category": "Мужская обувь → 797 Ботинки мужские зимние для активного отдыха",
+      "sales_share_pct": 5.75,
+      "growth_pct": 50.6
+    },
+    {
+      "category": "Женская обувь → 011 Тапочки женские",
+      "sales_share_pct": 5.65,
+      "growth_pct": 43.2
+    },
+    {
+      "category": "Женская обувь → 016 Дутые сапоги/валенки женские",
+      "sales_share_pct": 4.88,
+      "growth_pct": 56.1
+    }
+  ]
+}

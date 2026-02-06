@@ -1,0 +1,275 @@
+{
+  "regions": {
+    "all_regions": [
+      {
+        "region": "БЕЛ",
+        "growth": 15.8,
+        "shops": 58
+      },
+      {
+        "region": "ВРН",
+        "growth": 15.9,
+        "shops": 42
+      },
+      {
+        "region": "ИРК",
+        "growth": 15.6,
+        "shops": 35
+      },
+      {
+        "region": "КЗ",
+        "growth": 14.0,
+        "shops": 48
+      },
+      {
+        "region": "МСК",
+        "growth": 12.6,
+        "shops": 125
+      },
+      {
+        "region": "ННВ",
+        "growth": 13.3,
+        "shops": 77
+      },
+      {
+        "region": "САМ",
+        "growth": 11.6,
+        "shops": 52
+      },
+      {
+        "region": "СИБ",
+        "growth": 15.3,
+        "shops": 68
+      },
+      {
+        "region": "СПБ",
+        "growth": 15.5,
+        "shops": 92
+      },
+      {
+        "region": "УРЛ",
+        "growth": 13.6,
+        "shops": 61
+      },
+      {
+        "region": "ЮГ",
+        "growth": 11.4,
+        "shops": 74
+      }
+    ],
+    "nnv_divisions": [
+      {
+        "division": "Ярославское",
+        "growth": 14.8
+      },
+      {
+        "division": "Ижевское",
+        "growth": 12.5
+      },
+      {
+        "division": "ННВ Север",
+        "growth": 13.7
+      },
+      {
+        "division": "Казань 1",
+        "growth": 11.9
+      },
+      {
+        "division": "ННВ 1",
+        "growth": 15.2
+      },
+      {
+        "division": "Владимир",
+        "growth": 12.8
+      },
+      {
+        "division": "Наб.Челны",
+        "growth": 13.1
+      }
+    ],
+    "nnv_categories_top5": [
+      {
+        "category": "Всесезонная обувь",
+        "growth": 34.7
+      },
+      {
+        "category": "Летняя обувь (открытая)",
+        "growth": 28.4
+      },
+      {
+        "category": "Спортивная обувь",
+        "growth": 24.5
+      },
+      {
+        "category": "Детская обувь",
+        "growth": 22.1
+      },
+      {
+        "category": "Аксессуары",
+        "growth": 19.3
+      }
+    ],
+    "nnv_categories_worst5": [
+      {
+        "category": "Зимние сапоги",
+        "growth": -8.5
+      },
+      {
+        "category": "Резиновая обувь",
+        "growth": -12.3
+      },
+      {
+        "category": "Домашняя обувь",
+        "growth": -15.7
+      },
+      {
+        "category": "Галоши",
+        "growth": -18.2
+      },
+      {
+        "category": "Валенки",
+        "growth": -22.4
+      }
+    ]
+  },
+  "accessories": {
+    "nnv_top10": [
+      {
+        "shop": "10267",
+        "growth": 42.5
+      },
+      {
+        "shop": "11936",
+        "growth": 38.2
+      },
+      {
+        "shop": "13107",
+        "growth": 35.7
+      },
+      {
+        "shop": "10649",
+        "growth": 31.4
+      },
+      {
+        "shop": "10077",
+        "growth": 28.9
+      },
+      {
+        "shop": "13112",
+        "growth": 25.3
+      },
+      {
+        "shop": "11390",
+        "growth": 22.1
+      },
+      {
+        "shop": "10717",
+        "growth": 19.7
+      },
+      {
+        "shop": "11547",
+        "growth": 17.2
+      },
+      {
+        "shop": "10999",
+        "growth": 15.8
+      }
+    ],
+    "nnv_worst10": [
+      {
+        "shop": "10612",
+        "growth": -22.4
+      },
+      {
+        "shop": "10647",
+        "growth": -18.9
+      },
+      {
+        "shop": "11123",
+        "growth": -15.3
+      },
+      {
+        "shop": "10855",
+        "growth": -12.7
+      },
+      {
+        "shop": "11902",
+        "growth": -10.2
+      },
+      {
+        "shop": "10478",
+        "growth": -8.5
+      },
+      {
+        "shop": "11654",
+        "growth": -6.1
+      },
+      {
+        "shop": "10921",
+        "growth": -4.3
+      },
+      {
+        "shop": "11234",
+        "growth": -2.8
+      },
+      {
+        "shop": "10788",
+        "growth": -1.5
+      }
+    ]
+  },
+  "turnover": {
+    "slow_groups": [
+      {
+        "group": "Зимние сапоги кожаные 37-40",
+        "turnover_weeks": 18.5,
+        "stock": 2450
+      },
+      {
+        "group": "Ботинки мужские зимние 42-45",
+        "turnover_weeks": 16.2,
+        "stock": 1870
+      },
+      {
+        "group": "Валенки детские 28-35",
+        "turnover_weeks": 15.8,
+        "stock": 980
+      },
+      {
+        "group": "Сапоги резиновые женские",
+        "turnover_weeks": 14.3,
+        "stock": 1520
+      },
+      {
+        "group": "Полуботинки кожаные классика",
+        "turnover_weeks": 13.7,
+        "stock": 1340
+      },
+      {
+        "group": "Туфли замшевые на каблуке",
+        "turnover_weeks": 12.9,
+        "stock": 890
+      },
+      {
+        "group": "Кроссовки белые базовые",
+        "turnover_weeks": 12.4,
+        "stock": 2120
+      },
+      {
+        "group": "Босоножки летние с ремешками",
+        "turnover_weeks": 11.8,
+        "stock": 760
+      },
+      {
+        "group": "Шлепанцы пляжные",
+        "turnover_weeks": 11.2,
+        "stock": 540
+      },
+      {
+        "group": "Тапочки домашние меховые",
+        "turnover_weeks": 10.7,
+        "stock": 1180
+      }
+    ]
+  }
+}

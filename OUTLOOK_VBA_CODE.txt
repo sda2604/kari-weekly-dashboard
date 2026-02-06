@@ -1,0 +1,259 @@
+'===============================================================================
+' KARI OUTLOOK VBA MACRO - Автосохранение вложений из писем
+'===============================================================================
+' Версия: 3.0 (с ТОЧНЫМ фильтром по названиям отчётов)
+' Дата: 25.01.2026
+'
+' ФИЛЬТР ПИСЕМ (только эти 3 типа):
+' 1. "Обувь остатки и оборачиваемость по группам товара"
+' 2. "Отчет по приросту регионы"
+' 3. "Отчет по приросту аксессуаров по магазинам"
+'
+' ИНСТРУКЦИЯ ПО УСТАНОВКЕ:
+' 1. Открой Outlook
+' 2. Нажми Alt+F11 (откроется VBA редактор)
+' 3. В левой панели найди: Project1 -> Microsoft Outlook Objects
+' 4. Дважды кликни на "ThisOutlookSession"
+' 5. УДАЛИ весь старый код
+' 6. Скопируй ВЕСЬ код ниже и вставь
+' 7. Нажми Ctrl+S для сохранения
+' 8. Закрой VBA редактор
+' 9. ПОЛНОСТЬЮ закрой Outlook и открой снова
+' 10. При запросе о макросах - нажми "Включить макросы"
+'===============================================================================
+
+Option Explicit
+
+' Путь для сохранения - ИЗМЕНИ НА СВОЙ ЕСЛИ НУЖНО
+Private Const SAVE_PATH As String = "C:\Users\salni\Desktop\Данные для Claude\WORK\2025-01-22_Автоматизация_еженедельных_отчетов\input\"
+
+' Включить диагностические сообщения (True = показывать, False = скрыть)
+Private Const SHOW_DEBUG As Boolean = True
+
+'===============================================================================
+' ГЛАВНАЯ ПРОЦЕДУРА - срабатывает при получении нового письма
+'===============================================================================
+Private Sub Application_NewMailEx(ByVal EntryIDCollection As String)
+    
+    Dim objNS As Outlook.NameSpace
+    Dim objMail As Object
+    Dim objAttachment As Outlook.Attachment
+    Dim arrIDs() As String
+    Dim strID As Variant
+    Dim strFileName As String
+    Dim strFullPath As String
+    Dim strSubFolder As String
+    Dim intSavedCount As Integer
+    Dim strDebugInfo As String
+    
+    On Error GoTo ErrorHandler
+    
+    Set objNS = Application.GetNamespace("MAPI")
+    
+    ' Разбиваем ID если пришло несколько писем
+    arrIDs = Split(EntryIDCollection, ",")
+    
+    For Each strID In arrIDs
+        
+        ' Получаем письмо
+        Set objMail = objNS.GetItemFromID(Trim(strID))
+        
+        ' Проверяем что это письмо (не встреча и т.д.)
+        If TypeName(objMail) = "MailItem" Then
+            
+            strDebugInfo = "Получено письмо:" & vbCrLf & _
+                          "От: " & objMail.SenderEmailAddress & vbCrLf & _
+                          "Тема: " & objMail.Subject & vbCrLf & _
+                          "Вложений: " & objMail.Attachments.Count
+            
+            ' Проверяем условия - тема содержит ключевые слова
+            If ContainsKeywords(objMail.Subject) Or ContainsKeywords(objMail.SenderEmailAddress) Then
+                
+                intSavedCount = 0
+                
+                ' Проверяем и создаём папку если не существует
+                If Not FolderExists(SAVE_PATH) Then
+                    MkDir SAVE_PATH
+                End If
+                
+                ' Перебираем вложения
+                For Each objAttachment In objMail.Attachments
+                    
+                    strFileName = objAttachment.FileName
+                    
+                    ' Фильтруем только Excel файлы
+                    If IsExcelFile(strFileName) Then
+                        
+                        ' Определяем подпапку
+                        strSubFolder = GetSubFolder(strFileName)
+                        
+                        ' Создаём подпапку если нужно
+                        If strSubFolder <> "" Then
+                            If Not FolderExists(SAVE_PATH & strSubFolder) Then
+                                MkDir SAVE_PATH & strSubFolder
+                            End If
+                            strFullPath = SAVE_PATH & strSubFolder & "\" & strFileName
+                        Else
+                            strFullPath = SAVE_PATH & strFileName
+                        End If
+                        
+                        ' Сохраняем файл
+                        objAttachment.SaveAsFile strFullPath
+                        intSavedCount = intSavedCount + 1
+                        
+                        strDebugInfo = strDebugInfo & vbCrLf & vbCrLf & _
+                                      "СОХРАНЁН: " & strFileName & vbCrLf & _
+                                      "Путь: " & strFullPath
+                        
+                    End If
+                    
+                Next objAttachment
+                
+                ' Показываем результат если включена диагностика
+                If SHOW_DEBUG Then
+                    If intSavedCount > 0 Then
+                        MsgBox strDebugInfo & vbCrLf & vbCrLf & _
+                               "ИТОГО СОХРАНЕНО: " & intSavedCount & " файл(ов)", _
+                               vbInformation, "KARI: Вложения сохранены"
+                    Else
+                        MsgBox strDebugInfo & vbCrLf & vbCrLf & _
+                               "Excel вложений не найдено", _
+                               vbInformation, "KARI: Нет вложений для сохранения"
+                    End If
+                End If
+                
+            Else
+                ' Письмо не соответствует критериям
+                If SHOW_DEBUG Then
+                    ' Раскомментируй строку ниже если хочешь видеть ВСЕ письма
+                    ' MsgBox strDebugInfo & vbCrLf & vbCrLf & "Письмо НЕ соответствует критериям (нет ключевых слов)", vbInformation, "KARI: Пропущено"
+                End If
+            End If
+            
+        End If
+        
+        Set objMail = Nothing
+        
+    Next strID
+    
+    Set objNS = Nothing
+    Exit Sub
+    
+ErrorHandler:
+    If SHOW_DEBUG Then
+        MsgBox "ОШИБКА в макросе KARI:" & vbCrLf & vbCrLf & _
+               "Номер: " & Err.Number & vbCrLf & _
+               "Описание: " & Err.Description & vbCrLf & _
+               "Путь сохранения: " & SAVE_PATH, _
+               vbCritical, "KARI: Ошибка"
+    End If
+    
+End Sub
+
+'===============================================================================
+' Проверка ТОЧНЫХ названий отчётов (только 3 типа)
+'===============================================================================
+Private Function ContainsKeywords(ByVal strText As String) As Boolean
+
+    Dim strLower As String
+    strLower = LCase(strText)
+
+    ' СТРОГИЙ ФИЛЬТР - только эти 3 названия:
+    ' 1. Обувь остатки и оборачиваемость по группам товара
+    ' 2. Отчет по приросту регионы
+    ' 3. Отчет по приросту аксессуаров по магазинам
+
+    ContainsKeywords = (InStr(strLower, "обувь остатки и оборачиваемость") > 0) Or _
+                       (InStr(strLower, "оборачиваемость по группам товара") > 0) Or _
+                       (InStr(strLower, "прирост") > 0 And InStr(strLower, "регион") > 0) Or _
+                       (InStr(strLower, "прирост") > 0 And InStr(strLower, "аксессуар") > 0)
+
+End Function
+
+'===============================================================================
+' Проверка что файл - Excel
+'===============================================================================
+Private Function IsExcelFile(ByVal strFileName As String) As Boolean
+    
+    Dim strLower As String
+    strLower = LCase(strFileName)
+    
+    IsExcelFile = (Right(strLower, 5) = ".xlsx") Or _
+                  (Right(strLower, 4) = ".xls") Or _
+                  (Right(strLower, 5) = ".xlsm") Or _
+                  (Right(strLower, 5) = ".xlsb")
+    
+End Function
+
+'===============================================================================
+' Определение подпапки по имени файла
+'===============================================================================
+Private Function GetSubFolder(ByVal strFileName As String) As String
+    
+    Dim strLower As String
+    strLower = LCase(strFileName)
+    
+    If InStr(strLower, "регион") > 0 Then
+        GetSubFolder = "Отчет по приросту регионы"
+    ElseIf InStr(strLower, "аксессуар") > 0 Then
+        GetSubFolder = "Отчет по приросту аксессуаров по магазинам"
+    ElseIf InStr(strLower, "оборач") > 0 Then
+        GetSubFolder = "Обувь остатки и оборачиваемость по группам товара"
+    ElseIf InStr(strLower, "структура") > 0 Then
+        GetSubFolder = ""
+    Else
+        GetSubFolder = ""
+    End If
+    
+End Function
+
+'===============================================================================
+' Проверка существования папки
+'===============================================================================
+Private Function FolderExists(ByVal strPath As String) As Boolean
+    On Error Resume Next
+    FolderExists = (GetAttr(strPath) And vbDirectory) = vbDirectory
+    On Error GoTo 0
+End Function
+
+'===============================================================================
+' ТЕСТОВАЯ ПРОЦЕДУРА - запусти вручную для проверки пути
+' Как запустить: Alt+F11, затем F5, выбери TestSavePath
+'===============================================================================
+Public Sub TestSavePath()
+    
+    Dim strTestFile As String
+    Dim intFileNum As Integer
+    
+    MsgBox "Тестирование пути сохранения:" & vbCrLf & vbCrLf & _
+           "Путь: " & SAVE_PATH & vbCrLf & _
+           "Папка существует: " & FolderExists(SAVE_PATH), _
+           vbInformation, "KARI: Тест пути"
+    
+    ' Пробуем создать тестовый файл
+    On Error Resume Next
+    
+    strTestFile = SAVE_PATH & "test_kari_macro.txt"
+    intFileNum = FreeFile
+    Open strTestFile For Output As #intFileNum
+    Print #intFileNum, "Test file created at " & Now()
+    Close #intFileNum
+    
+    If Err.Number = 0 Then
+        MsgBox "УСПЕХ! Тестовый файл создан:" & vbCrLf & strTestFile & vbCrLf & vbCrLf & _
+               "Можешь удалить его.", _
+               vbInformation, "KARI: Тест записи"
+    Else
+        MsgBox "ОШИБКА записи в папку!" & vbCrLf & vbCrLf & _
+               "Код: " & Err.Number & vbCrLf & _
+               "Описание: " & Err.Description & vbCrLf & vbCrLf & _
+               "Проверь:" & vbCrLf & _
+               "1. Папка существует" & vbCrLf & _
+               "2. Есть права на запись" & vbCrLf & _
+               "3. Путь указан правильно", _
+               vbCritical, "KARI: Ошибка записи"
+    End If
+    
+    On Error GoTo 0
+    
+End Sub

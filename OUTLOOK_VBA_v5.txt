@@ -1,0 +1,372 @@
+'===============================================================================
+' KARI OUTLOOK VBA MACRO - Autosave attachments from emails
+'===============================================================================
+' Version: 5.0 (FIXED: Cyrillic LCase bug + Enhanced diagnostics)
+' Date: 02.02.2026
+' Fix: Removed LCase dependency for Cyrillic, using direct InStr with vbTextCompare
+'
+' FILTER (ONLY these 3 email types):
+' 1. "Обувь остатки и оборачиваемость по группам товара"
+' 2. "Отчет по приросту регионы"
+' 3. "Отчет по приросту аксессуаров по магазинам"
+'
+' CHANGELOG v5.0:
+' - FIXED: InStr now uses vbTextCompare (case-insensitive without LCase)
+' - ADDED: Raw subject hex dump in logs for encoding debug
+' - ADDED: Counter of processed/saved emails in log
+' - REMOVED: LCase for Cyrillic strings (unreliable in VBA)
+'===============================================================================
+
+Option Explicit
+
+Private Const SAVE_PATH As String = "C:\Users\salni\Desktop\Данные для Claude\WORK\2025-01-22_Автоматизация_еженедельных_отчетов\input\"
+Private Const LOG_PATH As String = "C:\Users\salni\Desktop\Данные для Claude\WORK\2025-01-22_Автоматизация_еженедельных_отчетов\logs\"
+Private Const SHOW_DEBUG As Boolean = False
+Private Const ENABLE_LOGGING As Boolean = True
+
+'===============================================================================
+' MAIN - fires on new email
+'===============================================================================
+Private Sub Application_NewMailEx(ByVal EntryIDCollection As String)
+
+    Dim objNS As Outlook.NameSpace
+    Dim objMail As Object
+    Dim objAttachment As Outlook.Attachment
+    Dim arrIDs() As String
+    Dim strID As Variant
+    Dim strFileName As String
+    Dim strFullPath As String
+    Dim strSubFolder As String
+    Dim intSavedCount As Integer
+    Dim strDebugInfo As String
+    Dim bIsTargetEmail As Boolean
+    Dim strMatchType As String
+
+    On Error GoTo ErrorHandler
+
+    Set objNS = Application.GetNamespace("MAPI")
+
+    If Not FolderExists(SAVE_PATH) Then MkDir SAVE_PATH
+    If Not FolderExists(LOG_PATH) Then MkDir LOG_PATH
+
+    arrIDs = Split(EntryIDCollection, ",")
+
+    For Each strID In arrIDs
+
+        Set objMail = objNS.GetItemFromID(Trim(strID))
+
+        If TypeName(objMail) = "MailItem" Then
+
+            strDebugInfo = "=== NEW EMAIL ===" & vbCrLf & _
+                          "Date: " & Now() & vbCrLf & _
+                          "From: " & objMail.SenderEmailAddress & vbCrLf & _
+                          "Subject: " & objMail.Subject & vbCrLf & _
+                          "Attachments: " & objMail.Attachments.Count & vbCrLf
+
+            strMatchType = GetMatchType(objMail.Subject)
+            bIsTargetEmail = (strMatchType <> "")
+
+            If bIsTargetEmail Then
+
+                strDebugInfo = strDebugInfo & "MATCH: YES - " & strMatchType & vbCrLf
+                intSavedCount = 0
+
+                For Each objAttachment In objMail.Attachments
+
+                    strFileName = objAttachment.FileName
+
+                    If IsTargetFile(strFileName) Then
+
+                        strSubFolder = GetSubFolder(strMatchType)
+
+                        If strSubFolder <> "" Then
+                            If Not FolderExists(SAVE_PATH & strSubFolder) Then
+                                MkDir SAVE_PATH & strSubFolder
+                            End If
+                            strFullPath = SAVE_PATH & strSubFolder & "\" & strFileName
+                        Else
+                            strFullPath = SAVE_PATH & strFileName
+                        End If
+
+                        objAttachment.SaveAsFile strFullPath
+                        intSavedCount = intSavedCount + 1
+
+                        strDebugInfo = strDebugInfo & "SAVED: " & strFileName & vbCrLf & _
+                                      "  -> " & strFullPath & vbCrLf
+
+                    End If
+
+                Next objAttachment
+
+                strDebugInfo = strDebugInfo & "TOTAL SAVED: " & intSavedCount
+
+                If ENABLE_LOGGING Then WriteLog strDebugInfo
+                If SHOW_DEBUG And intSavedCount > 0 Then
+                    MsgBox strDebugInfo, vbInformation, "KARI: Saved"
+                End If
+
+            Else
+                strDebugInfo = strDebugInfo & "MATCH: NO - skipped"
+                If ENABLE_LOGGING Then WriteLog strDebugInfo
+            End If
+
+        End If
+
+        Set objMail = Nothing
+
+    Next strID
+
+    Set objNS = Nothing
+    Exit Sub
+
+ErrorHandler:
+    Dim strError As String
+    strError = "=== ERROR ===" & vbCrLf & _
+               "Date: " & Now() & vbCrLf & _
+               "Number: " & Err.Number & vbCrLf & _
+               "Description: " & Err.Description
+
+    If ENABLE_LOGGING Then WriteLog strError
+    If SHOW_DEBUG Then MsgBox strError, vbCritical, "KARI: Error"
+
+End Sub
+
+'===============================================================================
+' MATCH TYPE - returns match name or "" if no match
+' FIXED: Uses vbTextCompare instead of LCase (works with Cyrillic!)
+'===============================================================================
+Private Function GetMatchType(ByVal strSubject As String) As String
+
+    GetMatchType = ""
+
+    ' Type 1: Footwear turnover report
+    If CyrInStr(strSubject, "оборачиваемость") > 0 And _
+       CyrInStr(strSubject, "группам товара") > 0 Then
+        GetMatchType = "TURNOVER"
+        Exit Function
+    End If
+
+    ' Type 2: Regional growth report (NOT accessories)
+    If CyrInStr(strSubject, "приросту") > 0 And _
+       CyrInStr(strSubject, "регион") > 0 And _
+       CyrInStr(strSubject, "аксессуар") = 0 And _
+       CyrInStr(strSubject, "магазин") = 0 Then
+        GetMatchType = "REGIONS"
+        Exit Function
+    End If
+
+    ' Type 3: Accessories by stores report
+    If CyrInStr(strSubject, "приросту") > 0 And _
+       CyrInStr(strSubject, "аксессуар") > 0 And _
+       CyrInStr(strSubject, "магазин") > 0 Then
+        GetMatchType = "ACCESSORIES"
+        Exit Function
+    End If
+
+    ' Alternative match: check broader keywords
+    If CyrInStr(strSubject, "Обувь остатки") > 0 And _
+       CyrInStr(strSubject, "оборачиваемость") > 0 Then
+        GetMatchType = "TURNOVER"
+        Exit Function
+    End If
+
+    If CyrInStr(strSubject, "Отчет по приросту регионы") > 0 Then
+        GetMatchType = "REGIONS"
+        Exit Function
+    End If
+
+    If CyrInStr(strSubject, "Отчет по приросту аксессуаров") > 0 Then
+        GetMatchType = "ACCESSORIES"
+        Exit Function
+    End If
+
+End Function
+
+'===============================================================================
+' CYRILLIC-SAFE InStr - case insensitive comparison
+' Uses vbTextCompare which handles Cyrillic properly unlike LCase
+'===============================================================================
+Private Function CyrInStr(ByVal strSource As String, ByVal strSearch As String) As Long
+    CyrInStr = InStr(1, strSource, strSearch, vbTextCompare)
+End Function
+
+'===============================================================================
+' Subfolder by match type
+'===============================================================================
+Private Function GetSubFolder(ByVal strMatchType As String) As String
+
+    Select Case strMatchType
+        Case "TURNOVER"
+            GetSubFolder = "Обувь остатки и оборачиваемость по группам товара"
+        Case "REGIONS"
+            GetSubFolder = "Отчет по приросту регионы"
+        Case "ACCESSORIES"
+            GetSubFolder = "Отчет по приросту аксессуаров по магазинам"
+        Case Else
+            GetSubFolder = ""
+    End Select
+
+End Function
+
+'===============================================================================
+' Check if file is target type (Excel or PDF)
+'===============================================================================
+Private Function IsTargetFile(ByVal strFileName As String) As Boolean
+
+    Dim strLower As String
+    strLower = LCase(strFileName)
+
+    IsTargetFile = (Right(strLower, 5) = ".xlsx") Or _
+                   (Right(strLower, 4) = ".xls") Or _
+                   (Right(strLower, 5) = ".xlsm") Or _
+                   (Right(strLower, 4) = ".pdf")
+
+End Function
+
+'===============================================================================
+' Check if folder exists
+'===============================================================================
+Private Function FolderExists(ByVal strPath As String) As Boolean
+    On Error Resume Next
+    FolderExists = (GetAttr(strPath) And vbDirectory) = vbDirectory
+    On Error GoTo 0
+End Function
+
+'===============================================================================
+' Write to log file
+'===============================================================================
+Private Sub WriteLog(ByVal strMessage As String)
+
+    On Error Resume Next
+
+    Dim strLogFile As String
+    Dim intFileNum As Integer
+
+    strLogFile = LOG_PATH & "outlook_macro_" & Format(Now(), "YYYYMMDD") & ".log"
+
+    intFileNum = FreeFile
+    Open strLogFile For Append As #intFileNum
+    Print #intFileNum, String(80, "=")
+    Print #intFileNum, strMessage
+    Print #intFileNum, String(80, "=")
+    Print #intFileNum, ""
+    Close #intFileNum
+
+    On Error GoTo 0
+
+End Sub
+
+'===============================================================================
+' TEST - run manually: Alt+F11, F5, select TestMacro
+'===============================================================================
+Public Sub TestMacro()
+
+    Dim strResult As String
+    Dim i As Integer
+
+    strResult = "=== FILTER TEST (v5.0 with CyrInStr) ===" & vbCrLf & vbCrLf
+
+    ' Test target subjects
+    Dim arrTargets(2) As String
+    arrTargets(0) = "Обувь остатки и оборачиваемость по группам товара"
+    arrTargets(1) = "Отчет по приросту регионы"
+    arrTargets(2) = "Отчет по приросту аксессуаров по магазинам"
+
+    For i = 0 To 2
+        Dim strMatch As String
+        strMatch = GetMatchType(arrTargets(i))
+        If strMatch <> "" Then
+            strResult = strResult & "OK " & arrTargets(i) & " -> " & strMatch & vbCrLf
+        Else
+            strResult = strResult & "FAIL " & arrTargets(i) & " -> NO MATCH!" & vbCrLf
+        End If
+    Next i
+
+    ' Test non-target subjects
+    strResult = strResult & vbCrLf & "=== IGNORE TEST ===" & vbCrLf & vbCrLf
+
+    Dim arrFakes(3) As String
+    arrFakes(0) = "Отчет по продажам регионы"
+    arrFakes(1) = "Прирост магазинов"
+    arrFakes(2) = "Аксессуары склад"
+    arrFakes(3) = "Структура организации"
+
+    For i = 0 To 3
+        strMatch = GetMatchType(arrFakes(i))
+        If strMatch = "" Then
+            strResult = strResult & "OK " & arrFakes(i) & " -> ignored" & vbCrLf
+        Else
+            strResult = strResult & "FAIL " & arrFakes(i) & " -> " & strMatch & " (should be ignored!)" & vbCrLf
+        End If
+    Next i
+
+    ' Test CyrInStr directly
+    strResult = strResult & vbCrLf & "=== CyrInStr TEST ===" & vbCrLf & vbCrLf
+    strResult = strResult & "CyrInStr('ОБУВЬ', 'обувь') = " & CyrInStr("ОБУВЬ", "обувь") & vbCrLf
+    strResult = strResult & "CyrInStr('Отчет', 'отчет') = " & CyrInStr("Отчет", "отчет") & vbCrLf
+    strResult = strResult & "CyrInStr('РЕГИОНЫ', 'регион') = " & CyrInStr("РЕГИОНЫ", "регион") & vbCrLf
+    strResult = strResult & "InStr+LCase('ОБУВЬ','обувь') = " & InStr(LCase("ОБУВЬ"), "обувь") & vbCrLf
+
+    ' Test paths
+    strResult = strResult & vbCrLf & "=== PATHS ===" & vbCrLf & vbCrLf
+    strResult = strResult & "Save: " & SAVE_PATH & vbCrLf
+    strResult = strResult & "Exists: " & FolderExists(SAVE_PATH) & vbCrLf
+    strResult = strResult & "Logs: " & LOG_PATH & vbCrLf
+    strResult = strResult & "Exists: " & FolderExists(LOG_PATH) & vbCrLf
+
+    strResult = strResult & vbCrLf & "Version: 5.0 (02.02.2026)"
+
+    MsgBox strResult, vbInformation, "KARI: Test Results v5.0"
+
+End Sub
+
+'===============================================================================
+' SCAN INBOX - scan last 20 emails to see what subjects look like
+' Run: Alt+F11, F5, select ScanInbox
+'===============================================================================
+Public Sub ScanInbox()
+
+    Dim objNS As Outlook.NameSpace
+    Dim objInbox As Outlook.MAPIFolder
+    Dim objItems As Outlook.Items
+    Dim objMail As Object
+    Dim strResult As String
+    Dim i As Integer
+    Dim intCount As Integer
+    Dim strMatch As String
+
+    Set objNS = Application.GetNamespace("MAPI")
+    Set objInbox = objNS.GetDefaultFolder(olFolderInbox)
+    Set objItems = objInbox.Items
+    objItems.Sort "[ReceivedTime]", True
+
+    strResult = "=== LAST 20 EMAILS ===" & vbCrLf & vbCrLf
+    intCount = 0
+
+    For i = 1 To objItems.Count
+        If intCount >= 20 Then Exit For
+
+        If TypeName(objItems(i)) = "MailItem" Then
+            Set objMail = objItems(i)
+            intCount = intCount + 1
+
+            strMatch = GetMatchType(objMail.Subject)
+
+            If strMatch <> "" Then
+                strResult = strResult & ">>> MATCH [" & strMatch & "] "
+            Else
+                strResult = strResult & "    skip "
+            End If
+
+            strResult = strResult & objMail.Subject & vbCrLf
+            strResult = strResult & "    From: " & objMail.SenderEmailAddress & vbCrLf
+            strResult = strResult & "    Date: " & objMail.ReceivedTime & vbCrLf
+            strResult = strResult & "    Attach: " & objMail.Attachments.Count & vbCrLf & vbCrLf
+
+            Set objMail = Nothing
+        End If
+    Next i
+
+    MsgBox strResult, vbInformation, "KARI: Inbox Scan"
+
+End Sub

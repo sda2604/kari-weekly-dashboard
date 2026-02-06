@@ -1,0 +1,45 @@
+﻿========================================================
+  KARI OUTLOOK MACRO - DIAGNOSTIC REPORT
+========================================================
+Generated: 2026-02-02 22:20:18
+
+PROJECT STATUS
+--------------
+Project Path: C:\Users\salni\Desktop\Данные для Claude\WORK\2025-01-22_Автоматизация_еженедельных_отчетов
+Macro File: OK
+Macro Version: v6.0
+
+TODAY'S ACTIVITY
+----------------
+Date: 20260202
+Log File: outlook_macro_20260202.log
+Status: EXISTS
+Emails Processed: 19
+Emails Matched: 0
+
+INPUT FILES STATUS
+------------------
+Files found: 0 / 3
+Status: ALL FRESH
+
+OUTLOOK PROCESS
+---------------
+Status: RUNNING
+Started: 02/02/2026 21:52:28
+
+DIAGNOSIS
+---------
+STATUS: WARNING - Macro is active but not matching emails
+Possible causes:
+  1. Email subjects don't match patterns
+  2. Wrong macro version installed
+  3. Test by forwarding an email to yourself
+
+NEXT STEPS
+----------
+1. If macro not working: Check VBA installation
+2. If files old: Wait for Monday or save manually
+3. Test by forwarding an email to yourself
+4. Check new log entry after forwarding
+
+========================================================
